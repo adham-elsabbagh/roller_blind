@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+access_roller_location,access_roller_location,model_roller_location,base.group_user,1,1,1,1
+access_other_location,access_other_location,model_other_location,base.group_user,1,1,1,1

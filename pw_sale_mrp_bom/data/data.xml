@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Data for roller.location -->
+        <record id="location_not_communicated" model="roller.location">
+            <field name="name">Not Communicated</field>
+        </record>
+        <record id="location_living_room_window_1" model="roller.location">
+            <field name="name">Living Room - Window 1</field>
+        </record>
+        <record id="location_living_room_window_2" model="roller.location">
+            <field name="name">Living Room - Window 2</field>
+        </record>
+        <record id="location_living_room_window_3" model="roller.location">
+            <field name="name">Living Room - Window 3</field>
+        </record>
+        <record id="location_bedroom_1_window_1" model="roller.location">
+            <field name="name">Bedroom 1 - Window 1</field>
+        </record>
+        <record id="location_bedroom_1_window_2" model="roller.location">
+            <field name="name">Bedroom 1 - Window 2</field>
+        </record>
+        <record id="location_bedroom_2_window_1" model="roller.location">
+            <field name="name">Bedroom 2 - Window 1</field>
+        </record>
+        <record id="location_bedroom_2_window_2" model="roller.location">
+            <field name="name">Bedroom 2 - Window 2</field>
+        </record>
+        <record id="location_bedroom_3_window_1" model="roller.location">
+            <field name="name">Bedroom 3 - Window 1</field>
+        </record>
+        <record id="location_bedroom_3_window_2" model="roller.location">
+            <field name="name">Bedroom 3 - Window 2</field>
+        </record>
+        <record id="location_dining_room" model="roller.location">
+            <field name="name">Dining Room</field>
+        </record>
+
+        <record id="location_terrasse" model="roller.location">
+            <field name="name">Terrasse</field>
+        </record>
+        <record id="location_balcony" model="roller.location">
+            <field name="name">Balcony</field>
+        </record>
+        <record id="location_kitchen" model="roller.location">
+            <field name="name">Kitchen</field>
+        </record>
+        <record id="location_bathroom" model="roller.location">
+            <field name="name">Bathroom</field>
+        </record>
+
+        <!-- Data for other.location -->
+        <record id="other_location_not_communicated" model="other.location">
+            <field name="name">Not communicated</field>
+        </record>
+        <record id="other_location_basement" model="other.location">
+            <field name="name">Basement</field>
+        </record>
+        <record id="other_location_ground_floor" model="other.location">
+            <field name="name">Ground floor</field>
+        </record>
+        <record id="other_location_first_floor" model="other.location">
+            <field name="name">First Floor</field>
+        </record>
+        <record id="other_location_second_floor" model="other.location">
+            <field name="name">Second Floor</field>
+        </record>
+        <record id="other_location_third_floor" model="other.location">
+            <field name="name">Third Floor</field>
+        </record>
+        <record id="other_location_loft" model="other.location">
+            <field name="name">Loft</field>
+        </record>
+        <record id="other_location_apartment" model="other.location">
+            <field name="name">Apartment</field>
+        </record>
+        <record id="other_location_house" model="other.location">
+            <field name="name">House</field>
+        </record>
+        <record id="other_location_bank" model="other.location">
+            <field name="name">Bank</field>
+        </record>
+        <record id="other_location_coffee_shop" model="other.location">
+            <field name="name">Coffee Shop</field>
+        </record>
+        <record id="other_location_hotel" model="other.location">
+            <field name="name">Hotel</field>
+        </record>
+        <record id="other_location_studio" model="other.location">
+            <field name="name">Studio</field>
+        </record>
+
+    </data>
+</odoo>

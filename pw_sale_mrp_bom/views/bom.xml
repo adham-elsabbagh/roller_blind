@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="mrp_bom_form_view" model="ir.ui.view">
+            <field name="name">mrp.bom.view.form.inherited.purchase.mrp</field>
+            <field name="model">mrp.bom</field>
+            <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form" position="replace">
+                    <form string="Bill of Material">
+                        <sheet>
+                            <div class="oe_button_box" name="button_box"
+                                 invisible="context.get('parent_production_id')">
+                                <button name="%(mrp.action_mrp_routing_time)d" type="action" class="oe_stat_button"
+                                        icon="fa-clock-o" groups="mrp.group_mrp_routings">
+                                    <div class="o_field_widget o_stat_info">
+                                        <span class="o_stat_text">Operations<br/>Performance
+                                        </span>
+                                    </div>
+                                </button>
+                                <button name="%(mrp.action_report_mrp_bom)d" type="action"
+                                        class="oe_stat_button" icon="fa-bars">
+                                    <div class="o_stat_info">
+                                        <span class="o_stat_text">BoM Overview</span>
+                                    </div>
+                                </button>
+                            </div>
+                            <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                            <group>
+                                <group string="Build">
+                                    <field name="code"/>
+                                    <field name="style"/>
+                                    <field name="active" invisible="1"/>
+                                    <field name="company_id" invisible="1"/>
+                                    <field name="product_tmpl_id" context="{'default_detailed_type': 'product'}"/>
+                                    <field name="product_uom_category_id" invisible="1"/>
+                                    <field name="allow_operation_dependencies" invisible="1"/>
+                                    <field name="product_id" groups="product.group_product_variant"
+                                           context="{'default_detailed_type': 'product'}"/>
+                                    <field name="product_id" groups="!product.group_product_variant" invisible="1"/>
+                                    <field name="length"/>
+                                    <field name="width"/>
+                                    <label for="product_qty" string="Quantity"/>
+                                    <div class="o_row">
+                                        <field name="product_qty"/>
+                                        <field name="product_uom_id" options="{'no_open':True,'no_create':True}"
+                                               groups="uom.group_uom"/>
+                                    </div>
+                                    <field name="location"/>
+                                    <field name="other_location" widget="many2many_tags"/>
+                                </group>
+                                <group string="Other Infos">
+                                    <field name="control_blind"/>
+                                    <field name="control_side"/>
+                                    <field name="roll_direction"/>
+                                    <field name="fitting_method"/>
+                                    <field name="check_measure"/>
+                                    <field name="remove_product"/>
+                                </group>
+                                <group>
+                                    <field name="type" widget="radio" invisible="context.get('parent_production_id')"/>
+                                    <p colspan="2" class="oe_grey oe_edit_only" invisible="type != 'phantom'">
+                                        <ul>
+                                            A BoM of type Kit is not produced with a manufacturing order.
+                                            <br/>
+                                            Instead, it is used to decompose a BoM into its components when:
+                                            <li>
+                                                it is added as a component in a manufacturing order
+                                            </li>
+                                            <li>
+                                                it is moved via a transfer, such as a receipt or a delivery order for
+                                                instance.
+                                            </li>
+                                        </ul>
+                                    </p>
+                                    <field name="company_id" groups="base.group_multi_company"
+                                           options="{'no_create': True, 'no_open': True}"
+                                           invisible="context.get('parent_production_id')"/>
+                                </group>
+                            </group>
+                            <notebook>
+                                <page string="Components" name="components">
+                                    <field name="bom_line_ids" widget="one2many"
+                                           context="{'default_parent_product_tmpl_id': product_tmpl_id, 'default_product_id': False, 'default_bom_id': id}">
+                                        <tree string="Components" editable="bottom">
+                                            <field name="company_id" column_invisible="True"/>
+                                            <field name="sequence" widget="handle"/>
+                                            <field name="product_id" context="{'default_detailed_type': 'product'}"/>
+                                            <field name="product_tmpl_id" column_invisible="True"/>
+                                            <button name="action_see_attachments" type="object" icon="fa-files-o"
+                                                    aria-label="Product Attachments" title="Product Attachments"
+                                                    class="float-end"
+                                                    column_invisible="context.get('parent_production_id')"/>
+                                            <field name="attachments_count" class="text-start" string=" "
+                                                   column_invisible="context.get('parent_production_id')"/>
+                                            <field name="product_qty"/>
+                                            <field name="product_uom_category_id" column_invisible="True"/>
+                                            <field name="parent_product_tmpl_id" column_invisible="True"/>
+                                            <field name="product_uom_id" options="{'no_open':True,'no_create':True}"
+                                                   groups="uom.group_uom"/>
+                                            <field name="possible_bom_product_template_attribute_value_ids"
+                                                   column_invisible="True"/>
+                                            <field name="bom_product_template_attribute_value_ids" optional="hide"
+                                                   widget="many2many_tags" options="{'no_create': True}"
+                                                   column_invisible="parent.product_id"
+                                                   groups="product.group_product_variant"/>
+                                            <field name="allowed_operation_ids" column_invisible="True"/>
+                                            <field name="operation_id" groups="mrp.group_mrp_routings" optional="hidden"
+                                                   column_invisible="parent.type not in ('normal', 'phantom')"
+                                                   options="{'no_quick_create':True,'no_create_edit':True}"/>
+                                            <field name="manual_consumption_readonly" column_invisible="True"/>
+                                            <field name="manual_consumption" optional="hide"
+                                                   readonly="manual_consumption_readonly" force_save="1"/>
+                                        </tree>
+                                    </field>
+                                </page>
+                                <page string="Operations"
+                                      name="operations"
+                                      invisible="type not in ('normal', 'phantom')"
+                                      groups="mrp.group_mrp_routings">
+                                    <field name="operation_ids"
+                                           invisible="type not in ('normal', 'phantom')"
+                                           groups="mrp.group_mrp_routings"
+                                           context="{'bom_id_invisible': True, 'default_bom_id': id, 'tree_view_ref': 'mrp.mrp_routing_workcenter_bom_tree_view'}"/>
+                                </page>
+                                <page string="By-products"
+                                      name="by_products"
+                                      invisible="type != 'normal'"
+                                      groups="mrp.group_mrp_byproducts">
+                                    <field name="byproduct_ids"
+                                           context="{'form_view_ref' : 'mrp.mrp_bom_byproduct_form_view', 'default_bom_id': id}">
+                                        <tree string="By-products" editable="top">
+                                            <field name="company_id" column_invisible="True"/>
+                                            <field name="product_uom_category_id" column_invisible="True"/>
+                                            <field name="sequence" widget="handle"/>
+                                            <field name="product_id" context="{'default_detailed_type': 'product'}"/>
+                                            <field name="product_qty"/>
+                                            <field name="product_uom_id" groups="uom.group_uom"/>
+                                            <field name="cost_share" optional="hide"/>
+                                            <field name="allowed_operation_ids" column_invisible="True"/>
+                                            <field name="operation_id" groups="mrp.group_mrp_routings"
+                                                   options="{'no_quick_create':True,'no_create_edit':True}"/>
+                                            <field name="possible_bom_product_template_attribute_value_ids"
+                                                   column_invisible="True"/>
+                                            <field name="bom_product_template_attribute_value_ids" optional="hide"
+                                                   widget="many2many_tags" options="{'no_create': True}"
+                                                   column_invisible="parent.product_id"
+                                                   groups="product.group_product_variant"/>
+                                        </tree>
+                                    </field>
+                                </page>
+                                <page string="Miscellaneous" name="miscellaneous">
+                                    <group>
+                                        <group>
+                                            <field name="ready_to_produce" invisible="type == 'phantom'"
+                                                   string="Manufacturing Readiness" widget="radio"
+                                                   groups="mrp.group_mrp_routings"/>
+                                            <field name="consumption" invisible="type == 'phantom'" widget="radio"/>
+                                            <field name="allow_operation_dependencies"
+                                                   groups="mrp.group_mrp_workorder_dependencies"/>
+                                        </group>
+                                        <group>
+                                            <field name="picking_type_id" invisible="type == 'phantom'" string="Routing"
+                                                   groups="stock.group_adv_location"/>
+                                            <label for="produce_delay" string="Manuf. Lead Time"/>
+                                            <div>
+                                                <field name="produce_delay" class="oe_inline"/>
+                                                days
+                                            </div>
+                                            <label for="days_to_prepare_mo"/>
+                                            <div>
+                                                <field name="days_to_prepare_mo" class="oe_inline"/>
+                                                days
+                                                <button name="action_compute_bom_days" string="Compute" type="object"
+                                                        help="Compute the days required to resupply all components from BoM, by either buying or manufacturing the components and/or subassemblies.
+                                                      Also note that purchase security lead times will be added when appropriate."
+                                                        class="oe_link pt-0"/>
+                                            </div>
+                                        </group>
+                                    </group>
+                                </page>
+                            </notebook>
+                        </sheet>
+                        <div class="oe_chatter">
+                            <field name="message_follower_ids"/>
+                            <field name="message_ids" colspan="4" nolabel="1"/>
+                        </div>
+                    </form>
+
+                </xpath>
+<!--                <xpath expr="//group/group" position="after">-->
+<!--                    <group string="Other Infos">-->
+<!--                        <field name="control_blind"/>-->
+<!--                        <field name="control_side"/>-->
+<!--                        <field name="roll_direction"/>-->
+<!--                        <field name="fitting_method"/>-->
+<!--                        <field name="check_measure"/>-->
+<!--                        <field name="remove_product"/>-->
+<!--                    </group>-->
+
+<!--                    <group string="Build">-->
+<!--                        <field name="style"/>-->
+<!--                    </group>-->
+<!--                </xpath>-->
+<!--                <xpath expr="//field[@name='product_id']" position="after">-->
+<!--                    <field name="length"/>-->
+<!--                    <field name="width"/>-->
+<!--                </xpath>-->
+
+            </field>
+        </record>
+
+        <record id="seq_mrp_bom_code" model="ir.sequence">
+            <field name="name">MRP BOM Code</field>
+            <field name="code">mrp.bom.code</field>
+            <field name="prefix">BOM</field>
+            <field name="padding">6</field> <!-- This ensures the code has a total of 6 digits. -->
+            <field name="company_id" eval="False"/> <!-- Make it global if company_id is False -->
+        </record>
+    </data>
+</odoo>

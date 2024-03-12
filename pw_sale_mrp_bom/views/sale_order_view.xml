@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_order_form_inherit_sale_bom" model="ir.ui.view">
+            <field name="name">sale.order.tree.inherit.sale.bom</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <field name="date_order" position="after">
+                    <field name="delivery_split"/>
+                    <field name="priority" widget="priority"/>
+                </field>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='name']" position="after">
+                    <button name="open_pw_bom_id_form" string="Open BOM" type="object" class="oe_highlight"/>
+                    <field name="pw_bom_id" readonly="not product_updatable"/>
+                    <field name="location" readonly="not product_updatable"/>
+                    <field name="length" readonly="not product_updatable"/>
+                    <field name="width" readonly="not product_updatable"/>
+                    <field name="size" readonly="not product_updatable"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="product_template_form_view_fabric" model="ir.ui.view">
+            <field name="name">product.template.form.inherit</field>
+            <field name="model">product.template</field>
+            <field name="priority">5</field>
+            <field name="inherit_id" ref="account.product_template_form_view"/>
+            <field name="arch" type="xml">
+                <field name="detailed_type" position="after">
+                    <field name="is_fabric_product"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="view_partner_form_inherit_leads" model="ir.ui.view">
+            <field name="name">res.partner.form.inherit.delivery.ups</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='category_id']" position="after">
+                    <field name="lead_source"/>
+                </xpath>
+            </field>
+        </record>
+
+
+    </data> 
+</odoo>
