@@ -1,0 +1,76 @@
+log:
+  level: INFO
+
+api:
+  insecure: false # Don't do that in production
+  dashboard: true
+
+entryPoints:
+  odoo:
+    address: ':80'
+    http:
+      redirections:
+        entryPoint:
+          to: web-secure
+
+  web-secure:
+    address: ':443'
+
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: 'akhamissi@gmail.com'
+      storage: /etc/traefik/acme/acme.json
+      httpChallenge:
+        entryPoint: web
+
+http:
+  routers:
+    web-secure-router:
+      rule: "Host(`software.deliverabilityninja.com`)"
+      entryPoints:
+        - web-secure
+      middlewares:
+        - csrf
+      service: web
+      tls:
+        certResolver: letsencrypt
+
+    traefik-dashboard:
+      rule: "Host(`software.deliverabilityninja.com`) && (PathPrefix(`/traefik`) || PathPrefix(`/dashboard`))"
+      service: api@internal
+      middlewares:
+        - auth 
+      entryPoints:
+        - web-secure
+      tls:
+        certResolver: letsencrypt
+
+
+    redirect:
+      redirectScheme:
+        scheme: https
+
+  middlewares:
+    redirect:
+      redirectScheme:
+        scheme: https
+    csrf:
+      headers:
+        hostsProxyHeaders: ['X-CSRFToken']
+    auth:
+      basicAuth:
+        users:
+          - "testuser:$apr1$jIKW.bdS$eKXe4Lxjgy/rH65wP1iQe1" 
+
+
+  services:
+    odoo:
+      loadBalancer:
+        servers:
+          - url: http://web:8000
+providers:
+  file:
+    filename: /etc/traefik/traefik.yml
+    watch: true

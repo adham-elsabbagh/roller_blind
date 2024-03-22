@@ -1,0 +1,27 @@
+[entryPoints]
+  [entryPoints.web]
+    address = ":80"
+
+  [entryPoints.websecure]
+    address = ":443"
+
+[api]
+dashboard = true
+
+[providers]
+  [providers.docker]
+    exposedByDefault = false
+
+[certificatesResolvers.letsencrypt.acme]
+email = "akhamissi@gmail.com"
+storage = "/letsencrypt/acme.json"
+  [certificatesResolvers.letsencrypt.acme.httpChallenge]
+    entryPoint = "web" # Use the 'web' entry point for HTTP challenges
+
+[http.middlewares]
+  [http.middlewares.odoo-https-redirect.redirectScheme]
+    scheme = "https"
+
+[[tls.certificates]]
+  certFile = "/letsencrypt/cert.crt"
+  keyFile = "/letsencrypt/private.key"

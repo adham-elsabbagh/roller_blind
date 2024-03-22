@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  odoo:
+    build:
+      context: .
+      dockerfile: dockerfiles/odoo/Dockerfile
+    container_name: odoo
+    depends_on:
+      - db
+    volumes:
+      - odoo-data:/var/lib/odoo
+      - ./volumes/odoo/conf:/etc/odoo
+      - ./addons:/mnt/extra-addons
+      - ./enterprise-addons:/mnt/enterprise-addons
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.odoo.rule=Host(`odoo.localhost`)
+      - traefik.http.routers.odoo.entrypoints=web
+      - traefik.port=8069
+      - traefik.http.routers.odoo-websocket.rule=Host(`odoo.localhost`) && Path(`/longpolling`)
+      - traefik.http.routers.odoo-websocket.service=odoo-websocket
+      - traefik.http.services.odoo-websocket.loadbalancer.server.port=8072
+
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=odoo
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    restart: always
+    ports:
+      - "80:80" # Expose port 80 for HTTP
+      - "443:443" # Expose port 443 for HTTPS
+      - "8080:8080" # Expose port 8080 for the dashboard`
+      - "8072:8072" # Expose port 8072 for the dashboard`
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./volumes/traefik/local.toml:/traefik.toml:ro
+      - ./letsencrypt:/letsencrypt
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.traefik.rule=Host(`traefik.localhost`) # Adjust hostname
+      - traefik.http.routers.traefik.entrypoints=websecure
+      - traefik.http.routers.traefik.service=api@internal
+      - traefik.http.routers.traefik.tls=true # Enables TLS for the dashboard
+
+volumes:
+  odoo-data:
+  db-data:
+  letsencrypt:

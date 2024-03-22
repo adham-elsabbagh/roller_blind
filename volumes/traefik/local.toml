@@ -1,0 +1,23 @@
+[entryPoints]
+  [entryPoints.web]
+    address = ":80"
+
+  [entryPoints.websecure]
+    address = ":443"
+
+[api]
+  dashboard = true
+
+[providers]
+  [providers.docker]
+    exposedByDefault = false
+
+[http]
+  [http.routers.odoo-ws]
+    rule = "Host(`odoo.localhost`) && Path(`/websocket`)"
+    service = "odoo-ws"
+    entryPoints = ["websecure"]
+
+  [http.services.odoo-ws.loadBalancer]
+    [[http.services.odoo-ws.loadBalancer.servers]]
+      url = "http://odoo:8072"  #

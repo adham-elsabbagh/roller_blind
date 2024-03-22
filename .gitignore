@@ -6,6 +6,11 @@ __pycache__/
 # C extensions
 *.so
 
+# odoo
+enterprise-addons
+__pycache__
+letsencrypt
+
 # Distribution / packaging
 .Python
 build/
