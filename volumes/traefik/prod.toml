@@ -6,11 +6,21 @@
     address = ":443"
 
 [api]
-dashboard = true
+  dashboard = true
 
 [providers]
   [providers.docker]
     exposedByDefault = false
+
+[http]
+  [http.routers.odoo-ws]
+    rule = "Host(`odoo.localhost`) && Path(`/websocket`)"
+    service = "odoo-ws"
+    entryPoints = ["websecure"]
+
+  [http.services.odoo-ws.loadBalancer]
+    [[http.services.odoo-ws.loadBalancer.servers]]
+      url = "http://odoo:8072"  #
 
 [certificatesResolvers.letsencrypt.acme]
 email = "akhamissi@gmail.com"

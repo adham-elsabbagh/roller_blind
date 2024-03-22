@@ -6,7 +6,7 @@ api:
   dashboard: true
 
 entryPoints:
-  odoo:
+  web:
     address: ':80'
     http:
       redirections:
@@ -16,19 +16,23 @@ entryPoints:
   web-secure:
     address: ':443'
 
+  websocket:
+    address: ':8072'
+
 
 certificatesResolvers:
   letsencrypt:
     acme:
       email: 'akhamissi@gmail.com'
-      storage: /etc/traefik/acme/acme.json
+      storage: /letsencrypt/acme.json
       httpChallenge:
         entryPoint: web
+
 
 http:
   routers:
     web-secure-router:
-      rule: "Host(`software.deliverabilityninja.com`)"
+      rule: "Host(`yancrm.com`)"
       entryPoints:
         - web-secure
       middlewares:
@@ -38,38 +42,38 @@ http:
         certResolver: letsencrypt
 
     traefik-dashboard:
-      rule: "Host(`software.deliverabilityninja.com`) && (PathPrefix(`/traefik`) || PathPrefix(`/dashboard`))"
+      rule: "Host(`yancrm.com`) && (PathPrefix(`/traefik`) || PathPrefix(`/dashboard`))"
       service: api@internal
       middlewares:
         - auth 
       entryPoints:
         - web-secure
-      tls:
+      tls: 
         certResolver: letsencrypt
 
-
-    redirect:
-      redirectScheme:
-        scheme: https
+    odoo-websocket:
+      rule: "Host(`yancrm.com`) && Path(`/longpolling`)"
+      service: odoo
+      entryPoints:
+        - websocket
 
   middlewares:
-    redirect:
-      redirectScheme:
-        scheme: https
     csrf:
       headers:
         hostsProxyHeaders: ['X-CSRFToken']
     auth:
       basicAuth:
         users:
-          - "testuser:$apr1$jIKW.bdS$eKXe4Lxjgy/rH65wP1iQe1" 
+          - "testuser:$apr1$jIKW.bdS$eKXe4Lxjgy/rH65wP1iQe1" # Use the hashed password for the user
 
 
   services:
     odoo:
       loadBalancer:
         servers:
-          - url: http://web:8000
+          - url: http://odoo:8069
+
+
 providers:
   file:
     filename: /etc/traefik/traefik.yml

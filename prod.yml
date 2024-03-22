@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   odoo:
     build:
@@ -18,31 +17,19 @@ services:
     env_file:
       - .env
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.odoo.rule=Host(`odoo.localhost`)"
-      - "traefik.http.routers.odoo-websocket.rule=Host(`odoo.localhost`) && Path(`/longpolling`)"
-      - "traefik.http.routers.odoo-websocket.service=odoo-websocket"
-      - "traefik.http.services.odoo-websocket.loadbalancer.server.port=8072"
-      - "traefik.http.middlewares.websocket-upgrade.headers.customRequestHeaders.Upgrade=websocket"
-      - "traefik.http.middlewares.websocket-upgrade.headers.customRequestHeaders.Connection=Upgrade"
-      - "traefik.http.routers.odoo-websocket.middlewares=websocket-upgrade"
-      - "traefik.http.routers.odoo.entrypoints=web"
-      - "traefik.http.routers.odoo.middlewares=odoo-https-redirect" # Define this middleware in Traefik
-      - "traefik.http.routers.odoo-https.entrypoints=websecure"
-      - "traefik.http.routers.odoo-https.tls=true"
-      - "traefik.http.routers.odoo-https.service=odoo"
-      - "traefik.http.routers.odoo-https.tls.certresolver=letsencrypt" # Use the correct certificate resolver name
-
+      - traefik.enable=true
+      - traefik.http.routers.odoo.entrypoints=web
+      - traefik.port=8069
+      - traefik.http.routers.odoo-websocket.service=odoo-websocket
+      - traefik.http.services.odoo-websocket.loadbalancer.server.port=8072
   db:
     image: postgres:15
     container_name: db
     restart: always
     networks:
       - odoo-web
-    environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=odoo
-      - POSTGRES_PASSWORD=odoo
+    env_file:
+      - .env
     volumes:
       - db-data:/var/lib/postgresql/data
 
@@ -50,30 +37,17 @@ services:
     image: traefik:latest
     container_name: traefik
     restart: always
-    networks:
-      - odoo-web
-    command:
-      - --providers.docker
-      - --api.insecure=true # Enable dashboard (only do this in safe environments)
-      - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:443
-      - --providers.file.filename=/etc/traefik/traefik.toml # Mount the config file
     ports:
-      - "80:80" # Expose port 80 for HTTP
-      - "443:443" # Expose port 443 for HTTPS
-      - "8080:8080" # Expose port 8080 for Traefik dashboard
-      - "8072:8072" # Expose port 8072 for Odoo websocket
+      - "80:80" 
+      - "443:443" 
+      - "8080:8080" 
+      - "8072:8072" 
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./volumes/traefik/traefik.toml:/etc/traefik/traefik.toml:ro
+      - ./volumes/traefik/prod.yml:/etc/traefik/traefik.yml
       - ./letsencrypt:/letsencrypt
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.localhost`)"
-      - "traefik.http.routers.traefik.entrypoints=websecure"
-      - "traefik.http.routers.traefik.service=api@internal"
-      - "traefik.http.routers.traefik.tls=true"
-      - "traefik.http.middlewares.gzip.compress=true"
+    networks:
+      - odoo-web
 
 networks:
   odoo-web:
